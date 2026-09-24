@@ -9,9 +9,13 @@ export type JobCompletedPayload = {
 };
 
 export type FeedbackSubmittedPayload = {
-  customer_id: string;
-  location_id: string;
-  job: string;
+  customer_id?: string | null;
+  location_id?: string | null;
+  job?: string | null;
+  customer_name?: string | null;
+  customer_email?: string | null;
+  customer_phone?: string | null;
+  location_name?: string | null;
   message: string;
 };
 

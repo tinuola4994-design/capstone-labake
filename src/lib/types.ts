@@ -19,6 +19,21 @@ export type Customer = {
   name: string
   phone: string
   email: string
+  location_id: string | null
+  location_name: string | null
+  feedback_request_sent: boolean
+  created_at: string
+}
+
+export type JobCompletion = {
+  id: string
+  customer_id: string | null
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  location_id: string
+  location_name: string
+  job: string
   created_at: string
 }
 
@@ -68,6 +83,9 @@ type Tables = {
       name: string
       phone: string
       email: string
+      location_id?: string | null
+      location_name?: string | null
+      feedback_request_sent?: boolean
       created_at?: string
     }
     Update: {
@@ -75,9 +93,53 @@ type Tables = {
       name?: string
       phone?: string
       email?: string
+      location_id?: string | null
+      location_name?: string | null
+      feedback_request_sent?: boolean
       created_at?: string
     }
     Relationships: []
+  }
+  job_completions: {
+    Row: JobCompletion
+    Insert: {
+      id?: string
+      customer_id?: string | null
+      customer_name: string
+      customer_email: string
+      customer_phone: string
+      location_id: string
+      location_name: string
+      job: string
+      created_at?: string
+    }
+    Update: {
+      id?: string
+      customer_id?: string | null
+      customer_name?: string
+      customer_email?: string
+      customer_phone?: string
+      location_id?: string
+      location_name?: string
+      job?: string
+      created_at?: string
+    }
+    Relationships: [
+      {
+        foreignKeyName: 'job_completions_customer_id_fkey'
+        columns: ['customer_id']
+        isOneToOne: false
+        referencedRelation: 'customers'
+        referencedColumns: ['id']
+      },
+      {
+        foreignKeyName: 'job_completions_location_id_fkey'
+        columns: ['location_id']
+        isOneToOne: false
+        referencedRelation: 'locations'
+        referencedColumns: ['id']
+      },
+    ]
   }
   feedback: {
     Row: Feedback

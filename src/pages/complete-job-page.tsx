@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCustomers, useLocations } from "@/hooks/use-feedback";
-import { postJobCompleted } from "@/lib/n8n";
+import { saveJobCompletion } from "@/lib/api";
 
 const NEW_CUSTOMER = "__new__";
 
@@ -83,7 +83,7 @@ export function CompleteJobPage() {
 
     setSubmitting(true);
     try {
-      await postJobCompleted({
+      await saveJobCompletion({
         customer_id: isNew ? null : customerMode,
         customer_name: name.trim(),
         customer_email: email.trim(),
@@ -93,10 +93,12 @@ export function CompleteJobPage() {
         job: job.trim(),
       });
       setSuccess(true);
-      toast.success("Job completed. Feedback request will be sent.");
+      toast.success("Job saved to Supabase.");
       setJob("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to notify n8n");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to save job completion",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -117,8 +119,8 @@ export function CompleteJobPage() {
         <CardHeader>
           <CardTitle className="text-base">Mark job complete</CardTitle>
           <CardDescription>
-            No AI runs here — the app only POSTs to the job-completed webhook.
-            Skip this page if you trigger Workflow A from an n8n Form.
+            Saves the completed visit directly to Supabase so n8n can react to it
+            outside this app.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -215,7 +217,7 @@ export function CompleteJobPage() {
 
             {success ? (
               <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-400">
-                Job completed. Feedback request will be sent.
+                Job saved to Supabase.
               </p>
             ) : null}
           </form>

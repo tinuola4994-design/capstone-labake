@@ -40,6 +40,18 @@ create table if not exists public.customers (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.job_completions (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid references public.customers (id) on delete set null,
+  customer_name text not null,
+  customer_email text not null,
+  customer_phone text not null,
+  location_id uuid not null references public.locations (id) on delete restrict,
+  location_name text not null,
+  job text not null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.feedback (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid not null references public.customers (id) on delete cascade,
@@ -68,6 +80,7 @@ create index if not exists feedback_created_at_idx on public.feedback (created_a
 -- Row Level Security
 alter table public.locations enable row level security;
 alter table public.customers enable row level security;
+alter table public.job_completions enable row level security;
 alter table public.feedback enable row level security;
 
 -- Authenticated staff can read locations & customers
@@ -82,6 +95,26 @@ create policy "Staff can read customers"
   on public.customers for select
   to authenticated
   using (true);
+
+-- Staff can insert new customers and job completion records
+-- This lets the dashboard persist a completed visit without relying on n8n.
+drop policy if exists "Staff can insert customers" on public.customers;
+create policy "Staff can insert customers"
+  on public.customers for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "Staff can read job completions" on public.job_completions;
+create policy "Staff can read job completions"
+  on public.job_completions for select
+  to authenticated
+  using (true);
+
+drop policy if exists "Staff can insert job completions" on public.job_completions;
+create policy "Staff can insert job completions"
+  on public.job_completions for insert
+  to authenticated
+  with check (true);
 
 -- Authenticated staff can select & update feedback (human actions only via UI)
 drop policy if exists "Staff can read feedback" on public.feedback;
